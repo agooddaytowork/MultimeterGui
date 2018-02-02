@@ -1,11 +1,10 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 import QtCharts 2.1
-import QtQuick.Dialogs 1.1
 import QtQuick.Controls.Material 2.1
 import QtQuick.Window 2.2
-
+import serialPortManager 1.0
 
 
 ApplicationWindow {
@@ -34,6 +33,28 @@ ApplicationWindow {
             {
                 text: "Serial Interface"
                 anchors.verticalCenter: parent.verticalCenter
+                onClicked: serialPortDialog.open()
+
+                Dialog{
+                    id: serialPortDialog
+                    x: (mainWindow.width - width) /2
+                    y:(mainWindow.height - height) /2
+                    parent: ApplicationWindow.overlay
+                    modal: true
+                    Column
+                    {
+                        spacing: 20
+                        anchors.fill: parent
+                        Label{
+                            text: "Name:"
+                        }
+                        ComboBox{
+                            id: serialPortComboBox
+                            model: SerialPortManager.availablePorts()
+
+                        }
+                    }
+                }
             }
         }
     }
@@ -186,5 +207,6 @@ ApplicationWindow {
         }
 
     }
+
 
 }

@@ -7,7 +7,8 @@ SOURCES += main.cpp \
     scpiprotocol.cpp \
     anLogger/src/anlogger.cpp \
     shared/commonthings.cpp \
-    simpleserialinterface.cpp
+    simpleserialinterface.cpp \
+    serialportmanager.cpp
 
 RESOURCES += qml.qrc
 
@@ -37,4 +38,5 @@ HEADERS += \
     scpiprotocol.h \
     anLogger/src/anlogger.h \
     shared/commonthings.h \
-    simpleserialinterface.h
+    simpleserialinterface.h \
+    serialportmanager.h

@@ -2,7 +2,9 @@
 #define SIMPLESERIALINTERFACE_H
 
 #include <QSerialPort>
+#include <QSerialPortInfo>
 #include "shared/commonthings.h"
+
 
 class SimpleSerialInterface: public QObject
 {
@@ -23,6 +25,7 @@ public:
     explicit SimpleSerialInterface(QObject * parent = nullptr);
     void setPortName(const QByteArray &name);
     void setBaudRate(const quint16 &baudrate);
+
 public slots:
     void connect();
     void disconnect();

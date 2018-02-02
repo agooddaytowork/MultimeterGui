@@ -4,7 +4,7 @@
 #include <QQmlContext>
 #include "scpiprotocol.h"
 #include "simpleserialinterface.h"
-
+#include "serialportmanager.h"
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -16,20 +16,22 @@ int main(int argc, char *argv[])
     QString extraImportPath(QStringLiteral("%1/../../../%2"));
 #endif
 
-    SimpleSerialInterface aSimpleInterface;
 
-    aSimpleInterface.setPortName("COM4");
-    aSimpleInterface.setBaudRate(9600);
-    aSimpleInterface.connect();
+    qmlRegisterType<SerialPortManager>("serialPortManager",1,0,"SerialPortManager");
+//    SimpleSerialInterface aSimpleInterface;
 
-    SCPIprotocol test;
+//    aSimpleInterface.setPortName("COM4");
+//    aSimpleInterface.setBaudRate(9600);
+//    aSimpleInterface.connect();
+
+//    SCPIprotocol test;
 
 
-    aSimpleInterface.input(test.ClearRegisters().GenMsg());
-    aSimpleInterface.input(test.ClearModel().GenMsg());
-    aSimpleInterface.input(test.SetVoltageDCMode().GenMsg());
-    aSimpleInterface.input(test.VoltageConfig().DCMode().UpperRange("300").GenMsg());
-    aSimpleInterface.input(test.Read().GenMsg());
+//    aSimpleInterface.input(test.ClearRegisters().GenMsg());
+//    aSimpleInterface.input(test.ClearModel().GenMsg());
+//    aSimpleInterface.input(test.SetVoltageDCMode().GenMsg());
+//    aSimpleInterface.input(test.VoltageConfig().DCMode().UpperRange("300").GenMsg());
+//    aSimpleInterface.input(test.Read().GenMsg());
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
