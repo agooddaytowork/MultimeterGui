@@ -133,11 +133,17 @@ SCPIprotocol &SCPIprotocol::ClearRegisters()
     return *this;
 }
 
-const QByteArray SCPIprotocol::resetMultimeter()
+const QByteArray SCPIprotocol::clearModelMultimeter()
 {
     SCPIprotocol tmp;
 
     return tmp.ClearModel().GenMsg();
+}
+
+const QByteArray SCPIprotocol::clearRegisterMultimeter()
+{
+    SCPIprotocol tmp;
+    return tmp.ClearRegisters().GenMsg();
 }
 
 const QByteArray SCPIprotocol::setMultimeterVoltageDCMode()
@@ -161,7 +167,7 @@ const QByteArray SCPIprotocol::setMultimeterCurrentACMode()
 const QByteArray SCPIprotocol::setMultimeterCurrentDCMode()
 {
     SCPIprotocol tmp;
-    return tmp.SetCurrentACMode().GenMsg();
+    return tmp.SetCurrentDCMode().GenMsg();
 }
 
 

@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     anLogger/src/anlogger.cpp \
     shared/commonthings.cpp \
     simpleserialinterface.cpp \
-    serialportmanager.cpp
+    serialportmanager.cpp \
+    chartdatasource.cpp
 
 RESOURCES += qml.qrc
 
@@ -39,4 +40,5 @@ HEADERS += \
     anLogger/src/anlogger.h \
     shared/commonthings.h \
     simpleserialinterface.h \
-    serialportmanager.h
+    serialportmanager.h \
+    chartdatasource.h

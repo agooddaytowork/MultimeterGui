@@ -5,6 +5,7 @@
 #include "scpiprotocol.h"
 #include "simpleserialinterface.h"
 #include "serialportmanager.h"
+#include "chartdatasource.h"
 #include <QThread>
 int main(int argc, char *argv[])
 {
@@ -31,6 +32,9 @@ int main(int argc, char *argv[])
 //    aSimpleInterface.connect();
 
     SCPIprotocol aSCPIprotocol;
+    ChartDataSource aChartDataSource;
+
+    QObject::connect(&aSimpleInterface,SIGNAL(output(QByteArray)),&aChartDataSource,SLOT(receivedDataHandler(QByteArray)));
 
 
 //    aSimpleInterface.input(test.ClearRegisters().GenMsg());
@@ -42,6 +46,7 @@ int main(int argc, char *argv[])
     QQmlContext *thisContext = engine.rootContext();
     thisContext->setContextProperty("serialPortInterface", &aSimpleInterface);
     thisContext->setContextProperty("sCPIprotocol", &aSCPIprotocol);
+    thisContext->setContextProperty("chartDataSource",&aChartDataSource);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;

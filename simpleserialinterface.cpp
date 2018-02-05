@@ -2,6 +2,7 @@
 
 SimpleSerialInterface::SimpleSerialInterface(QObject *parent): mSerialPort(parent), mPortName("COM1"), mBaudrate(9600),QObject(parent)
 {
+    Data.clear();
 
     QObject::connect(&mSerialPort,SIGNAL(readyRead()),this,SLOT(receivedDataHandler()));
     QObject::connect(&mSerialPort,SIGNAL(error(QSerialPort::SerialPortError)),this,SLOT(serialPortErrorHandler(QSerialPort::SerialPortError)));
@@ -56,8 +57,10 @@ return true;
 
 bool SimpleSerialInterface::disconnect()
 {
+
     if(mSerialPort.disconnect())
     {
+        mSerialPort.close();
         emit disconnected();
         return true;
     }
@@ -72,14 +75,17 @@ void SimpleSerialInterface::input(const QByteArray &input)
 
 void SimpleSerialInterface::receivedDataHandler()
 {
-    QByteArray data;
-    data.clear();
-    while(!mSerialPort.atEnd())
-    {
-        data += mSerialPort.readAll();
-    }
+    QByteArray tmpdata;
+    static QByteArray data;
 
-    emit output(data);
+    tmpdata = mSerialPort.readAll();
+    data +=tmpdata;
+    if(tmpdata.at(tmpdata.count()-1)=='\r')
+    {
+        emit output(data);
+        data.clear();
+
+    }
 }
 
 

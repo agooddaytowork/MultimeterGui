@@ -4,7 +4,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include "shared/commonthings.h"
-
+#include <QMap>
 
 class SimpleSerialInterface: public QObject
 {
@@ -23,7 +23,7 @@ signals:
 
 public:
     explicit SimpleSerialInterface(QObject * parent = nullptr);
-
+    QMap<uint32_t, double> Data;
 
 public slots:
     Q_INVOKABLE void setPortName(const QByteArray &name);

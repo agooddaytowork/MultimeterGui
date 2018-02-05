@@ -6,6 +6,7 @@ import QtQuick.Controls.Material 2.1
 import QtQuick.Window 2.2
 import serialPortManager 1.0
 
+
 ApplicationWindow {
     visible: true
     width: 1800
@@ -14,7 +15,8 @@ ApplicationWindow {
     id: mainWindow
 
     property bool serialInterfaceAvailable: false
-
+    property int  readTimerInterval: 100
+    property bool controlPanelEnable : true
     header: ToolBar
     {
         id: theToolbar
@@ -32,7 +34,6 @@ ApplicationWindow {
             spacing: 10
             anchors.margins: 5
 
-
             Button
             {
                 text: "Serial Interface"
@@ -45,6 +46,7 @@ ApplicationWindow {
                     y:(mainWindow.height - height) /2
                     parent: ApplicationWindow.overlay
                     modal: true
+
                     Column
                     {
                         spacing: 20
@@ -63,6 +65,7 @@ ApplicationWindow {
 
                         ComboBox{
                             id: serialPortBaudRate
+                            currentIndex: 1
                             model:  ListModel{
                                 ListElement{ text:"9600"}
                                 ListElement{text: "19200"}
@@ -80,6 +83,9 @@ ApplicationWindow {
                                     serialConnectButton.enabled = false
                                     serialDisconnectButton.enabled = true
                                     serialInterfaceAvailable = true
+
+                                    serialPortInterface.input(sCPIprotocol.clearRegisterMultimeter())
+                                    serialPortInterface.input(sCPIprotocol.clearModelMultimeter())
                                 }
                             }
                         }
@@ -114,10 +120,79 @@ ApplicationWindow {
                     id: recordSettingDialog
                     x: (mainWindow.width - width) /2
                     y:(mainWindow.height - height) /2
-                    parent: ApplicationWindow.overlay
-                    modal: true
+                     parent: ApplicationWindow.overlay
+                     modal: true
+                    Column
+                    {
+                        RowLayout
+                        {
+                            Label
+                            {
+                                 Layout.alignment: Qt.AlignCenter
+                                text:"Current Path: "
+                            }
+                            TextField
+                            {
+                                 Layout.alignment: Qt.AlignCenter
+                                id: currectRecordPathTextField
+
+                                Layout.preferredWidth: 300
+                            }
+
+                        }
+
+                    }
+
+                    onClosed: {
+                        chartDataSource.setURLPath(currectRecordPathTextField.text)
+                    }
                 }
             }
+            Label
+            {
+                text: "Samples:"
+                color: "white"
+            }
+
+            ComboBox
+            {
+                id: timeDivCombobox
+                model:  ListModel{
+                    ListElement{ text:"10"}
+                    ListElement{text: "100"}
+                    ListElement{text: "1000"}
+                    ListElement{text: "10k"}
+                }
+            }
+
+            Label
+            {
+                text: "Max:"
+                color: "white"
+            }
+
+            TextField
+            {
+                id: maxRangeYTaxField
+                text: "10.0"
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+
+            }
+
+            Label
+            {
+                text: "Delta:"
+                color: "white"
+            }
+            TextField
+            {
+                id: deltaRangeYTaxField
+                text: "5.0"
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+
+            }
+
+
         }
     }
 
@@ -167,27 +242,27 @@ ApplicationWindow {
                     if (pinch.scale < 1)
                     {
 
-                        if(Math.abs(chartView.toMsecsSinceEpoch(axisX1.min) - chartView.toMsecsSinceEpoch(axisX1.max)) <(24*60*60*1000))
-                        {
-                            axisX1.min = new Date(axisX1.min - 1000000*(1/pinch.scale))
-                            axisX1.max = new Date(axisX1.max + 1000000*(1/pinch.scale))
-                        }
-                        else
-                        {
-                            axisX1.min = new Date(axisX1.max - (24*60*60*1000))
-                        }
-                    }
-                    else
-                    {
-                        if(Math.abs(chartView.toMsecsSinceEpoch(axisX1.min) - chartView.toMsecsSinceEpoch(axisX1.max)) > (20*60*1000))
-                        {
-                            axisX1.min = new Date(axisX1.min + 1000000*pinch.scale)
-                            axisX1.max = new Date(axisX1.max - 1000000*pinch.scale)
-                        }
-                        else
-                        {
-                            axisX1.min = new Date(axisX1.max - (20*60*1000))
-                        }
+                        //                        if(Math.abs(chartView.toMsecsSinceEpoch(axisX1.min) - chartView.toMsecsSinceEpoch(axisX1.max)) <(24*60*60*1000))
+                        //                        {
+                        //                            axisX1.min = new Date(axisX1.min - 1000000*(1/pinch.scale))
+                        //                            axisX1.max = new Date(axisX1.max + 1000000*(1/pinch.scale))
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            axisX1.min = new Date(axisX1.max - (24*60*60*1000))
+                        //                        }
+                        //                    }
+                        //                    else
+                        //                    {
+                        //                        if(Math.abs(chartView.toMsecsSinceEpoch(axisX1.min) - chartView.toMsecsSinceEpoch(axisX1.max)) > (20*60*1000))
+                        //                        {
+                        //                            axisX1.min = new Date(axisX1.min + 1000000*pinch.scale)
+                        //                            axisX1.max = new Date(axisX1.max - 1000000*pinch.scale)
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            axisX1.min = new Date(axisX1.max - (20*60*1000))
+                        //                        }
 
                     }
 
@@ -218,31 +293,32 @@ ApplicationWindow {
         }
 
         ValueAxis{
-            id: axisY2
+            id: axisX1
+
+            tickCount: 10
             min: 0
-            max: 8000
-            tickCount: 6
-            labelFormat: "%d"
+            max: getTimeDiv()
 
         }
 
-        DateTimeAxis{
-            id: axisX1
-            tickCount: 6
-            min: new Date(new Date() - 100000)
-            max: new Date()
-            format: "MMM\dd hh:mm"
+        ValueAxis{
+            id: axisY2
+            min:  parseFloat(maxRangeYTaxField.text) - parseFloat(deltaRangeYTaxField.text)
+            max: parseFloat(maxRangeYTaxField.text)
+            tickCount: 11
+
         }
 
         LineSeries{
             id: dataSerie
             name: "Data"
-            axisX: axisX1
-            axisY: axisY2
             useOpenGL: true
             width: 4
             color: "red"
             style: Qt.DotLine
+            axisX: axisX1
+            axisY: axisY2
+
 
         }
 
@@ -288,20 +364,42 @@ ApplicationWindow {
                 {
                     spacing: 5
 
-                    Label
+                    Row
                     {
-                        text: "0V"
+
+                        Label
+                        {
+                            id: currentValueLabel
+                            text: "0"
+                            font.pixelSize: 22
+                            font.bold: true
+                            color: "blue"
+                        }
+                        Label{
+                            id: unitLabel
+                            font.pixelSize: 22
+                            font.bold: true
+                            color: "blue"
+                        }
                     }
+
 
                     Label
                     {
                         text: "Sampling rate (Hz):"
+
+
                     }
                     SpinBox
                     {
                         id: samplingRateSpinBox
                         from: 1
-                        to: 10
+                        to: 15
+                        value: 10
+                        onValueChanged:
+                        {
+                            readTimerInterval = 1000/value
+                        }
                     }
                 }
             }
@@ -313,6 +411,7 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
                 Layout.margins: 10
+                enabled: controlPanelEnable
                 Row
                 {
 
@@ -320,6 +419,7 @@ ApplicationWindow {
                         id: voltageRadioButton
                         text: "Voltage"
                         checked: true
+
                     }
                     RadioButton
                     {
@@ -337,45 +437,19 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
                 Layout.margins: 10
+                enabled: controlPanelEnable
                 RowLayout
                 {
                     RadioButton{
                         id: acRadioButton
                         text: "AC"
                         checked: true
-                        onCheckedChanged:
-                        {
-                            if(checked)
-                            {
-                                if(voltageRadioButton.checked)
-                                {
-                                    setMultimeterVoltageACMode()
-                                }
-                                else
-                                {
-                                    setMultimeterCurrentACMode()
-                                }
-                            }
-                        }
                     }
                     RadioButton
                     {
                         id: dcRadioButton
                         text: "DC"
-                        onCheckedChanged:
-                        {
-                            if(checked)
-                            {
-                                if(voltageRadioButton.checked)
-                                {
-                                    setMultimeterVoltageDCMode()
-                                }
-                                else
-                                {
-                                    setMultimeterCurrentDCMode()
-                                }
-                            }
-                        }
+
                     }
                 }
             }
@@ -386,70 +460,19 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
                 Layout.margins: 10
+                enabled: controlPanelEnable
                 Column{
                     CheckBox
                     {
                         id: autoRangeCheckbox
                         text: "Auto"
+                        checked: true
 
                         onCheckedChanged:
                         {
                             if(serialInterfaceAvailable)
                             {
-                                if(checked)
-                                {
 
-                                    if(voltageRadioButton.checked)
-                                    {
-                                        if(dcRadioButton.checked)
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(2))
-                                        }
-                                        else
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(1))
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if(dcRadioButton.checked)
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(4))
-                                        }
-                                        else
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(3))
-                                        }
-
-                                    }
-                                }
-                                else
-                                {
-
-                                    if(voltageRadioButton.checked)
-                                    {
-                                        if(dcRadioButton.checked)
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(2))
-                                        }
-                                        else
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(1))
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if(dcRadioButton.checked)
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(4))
-                                        }
-                                        else
-                                        {
-                                            serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(3))
-                                        }
-
-                                    }
-                                }
                             }
 
 
@@ -461,32 +484,6 @@ ApplicationWindow {
                         id: manualRangeSlider
                         enabled: autoRangeCheckbox.checked? 0:1
                         to: parent.getMaximumRange()
-                        onPressedChanged:
-                        {
-                            if(voltageRadioButton.checked)
-                            {
-                                if(dcRadioButton.checked)
-                                {
-                                    setMulimeterRange(2, value)
-                                }
-                                else
-                                {
-                                    setMulimeterRange(1, value)
-                                }
-                            }
-                            else
-                            {
-                                if(dcRadioButton.checked)
-                                {
-                                    setMulimeterRange(4, value)
-                                }
-                                else
-                                {
-                                    setMulimeterRange(3, value)
-                                }
-                            }
-                        }
-
 
 
                     }
@@ -521,11 +518,114 @@ ApplicationWindow {
                 id: runButton
                 text: "Run"
                 enabled: serialInterfaceAvailable? 1:0
+
+                onClicked:
+                {
+
+                    if(text === "Run")
+                    {
+                        dataSerie.clear()
+                        controlPanelEnable = false
+                        if(autoRangeCheckbox.checked)
+                        {
+
+                            if(voltageRadioButton.checked)
+                            {
+                                if(dcRadioButton.checked)
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterVoltageDCMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(2))
+                                    unitLabel.text = "VDC"
+                                }
+                                else
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterVoltageACMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(1))
+                                    unitLabel.text = "VAC"
+                                }
+                            }
+                            else
+                            {
+                                if(dcRadioButton.checked)
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterCurrentDCMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(4))
+                                    unitLabel.text = "Amp"
+                                }
+                                else
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterCurrentACMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeON(3))
+                                    unitLabel.text = "Amp"
+                                }
+
+                            }
+                        }
+                        else
+                        {
+
+                            if(voltageRadioButton.checked)
+                            {
+                                if(dcRadioButton.checked)
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterVoltageDCMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(2))
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterRange(2, manualRangeSlider.value))
+                                    unitLabel.text = "VDC"
+                                }
+                                else
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterVoltageACMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(1))
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterRange(1, manualRangeSlider.value))
+                                    unitLabel.text = "VAC"
+                                }
+                            }
+                            else
+                            {
+                                if(dcRadioButton.checked)
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterCurrentDCMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(4))
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterRange(4, manualRangeSlider.value))
+                                    unitLabel.text = "Amp"
+                                }
+                                else
+                                {
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterCurrentACMode())
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterAutoRangeOFF(3))
+                                    serialPortInterface.input(sCPIprotocol.setMultimeterRange(3, manualRangeSlider.value))
+                                    unitLabel.text = "Amp"
+                                }
+
+                            }
+                        }
+                        readTimer.start()
+                        text = "Stop"
+                    }
+                    else
+                    {
+                        controlPanelEnable = true
+                        text = "Run"
+                        readTimer.stop()
+                        if(recordCheckbox.checked)
+                        {
+                            chartDataSource.recordToCSV()
+                        }
+
+                        chartDataSource.resetDataSource()
+                        serialPortInterface.input(sCPIprotocol.clearRegisterMultimeter())
+                        serialPortInterface.input(sCPIprotocol.clearModelMultimeter())
+
+                    }
+
+
+                }
             }
-            Button
+            CheckBox
             {
                 Layout.alignment: Qt.AlignCenter
-                id: recordBUtton
+                id: recordCheckbox
                 text:"Record"
                 enabled: serialInterfaceAvailable? 1:0
             }
@@ -534,6 +634,24 @@ ApplicationWindow {
 
     SerialPortManager{
         id: serial
+    }
+
+    Timer
+    {
+        id: readTimer;
+        interval: readTimerInterval
+        repeat: true
+        triggeredOnStart: false
+        onTriggered: {
+            serialPortInterface.input(sCPIprotocol.readMultimeter())
+            chartDataSource.update(dataSerie)
+            currentValueLabel.text = chartDataSource.lastValue()
+
+            axisX1.min = axisX1.max - getTimeDiv()
+            axisX1.max = chartDataSource.getCurrentDataIndex() + 1
+
+        }
+
     }
 
     function setMultimeterVoltageDCMode()
@@ -548,7 +666,7 @@ ApplicationWindow {
     {
         if(serialInterfaceAvailable)
         {
-            serialPortInterface.input(sCPIprotocol.setMultimeterVoltageDCMode())
+            serialPortInterface.input(sCPIprotocol.setMultimeterVoltageACMode())
         }
     }
 
@@ -591,6 +709,27 @@ ApplicationWindow {
         if(serialInterfaceAvailable)
         {
             sCPIprotocol.setMultimeterAutoRangeOFF(rangetype)
+        }
+    }
+
+    function getTimeDiv()
+    {
+
+        if(timeDivCombobox.currentText === "10")
+        {
+            return 10
+        }
+        else if(timeDivCombobox.currentText==="100")
+        {
+            return 100
+        }
+        else if(timeDivCombobox.currentText==="1000")
+        {
+            return 1000
+        }
+        else if(timeDivCombobox.currentText==="10k")
+        {
+            return 10000
         }
     }
 

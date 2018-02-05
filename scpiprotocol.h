@@ -47,7 +47,8 @@ public:
      const QByteArray GenMsg();
      const QByteArray GetMsg();
 
-     Q_INVOKABLE const QByteArray resetMultimeter();
+     Q_INVOKABLE const QByteArray clearRegisterMultimeter();
+     Q_INVOKABLE const QByteArray clearModelMultimeter();
      Q_INVOKABLE const QByteArray setMultimeterVoltageDCMode();
      Q_INVOKABLE const QByteArray setMultimeterVoltageACMode();
      Q_INVOKABLE const QByteArray setMultimeterCurrentDCMode();
