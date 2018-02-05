@@ -356,7 +356,7 @@ ApplicationWindow {
 
             GroupBox
             {
-                title: "Group 0"
+                title: ""
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
                 Layout.margins: 10
@@ -406,7 +406,7 @@ ApplicationWindow {
 
             GroupBox
             {
-                title: "Group 1"
+                title: "Measurement Mode:"
 
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
@@ -433,7 +433,7 @@ ApplicationWindow {
 
             GroupBox
             {
-                title: "Group 2"
+                title: "Current Mode:"
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
                 Layout.margins: 10
@@ -456,7 +456,7 @@ ApplicationWindow {
 
             GroupBox
             {
-                title: "Group 3"
+                title: "Measurement Range"
                 Layout.alignment: Qt.AlignCenter
                 Layout.fillWidth: true
                 Layout.margins: 10
