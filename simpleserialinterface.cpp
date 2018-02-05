@@ -32,7 +32,7 @@ void SimpleSerialInterface::setBaudRate(const quint16 &baudrate)
     }
 }
 
-void SimpleSerialInterface::connect()
+bool SimpleSerialInterface::connect()
 {
     if(mSerialPort.isOpen())
     {
@@ -44,24 +44,29 @@ void SimpleSerialInterface::connect()
     if(!mSerialPort.open(QIODevice::ReadWrite))
     {
         emit errorsOcurred();
+        return false;
     }
     else
     {
         emit connected();
-    }
 
+    }
+return true;
 }
 
-void SimpleSerialInterface::disconnect()
+bool SimpleSerialInterface::disconnect()
 {
     if(mSerialPort.disconnect())
     {
         emit disconnected();
+        return true;
     }
+    return false;
 }
 
 void SimpleSerialInterface::input(const QByteArray &input)
 {
+    qDebug() << input;
     mSerialPort.write(input);
 }
 

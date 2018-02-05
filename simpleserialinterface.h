@@ -23,13 +23,14 @@ signals:
 
 public:
     explicit SimpleSerialInterface(QObject * parent = nullptr);
-    void setPortName(const QByteArray &name);
-    void setBaudRate(const quint16 &baudrate);
+
 
 public slots:
-    void connect();
-    void disconnect();
-    void input(const QByteArray &input);
+    Q_INVOKABLE void setPortName(const QByteArray &name);
+    Q_INVOKABLE void setBaudRate(const quint16 &baudrate);
+    Q_INVOKABLE bool connect();
+    Q_INVOKABLE bool disconnect();
+    Q_INVOKABLE void input(const QByteArray &input);
 
 private slots:
     void receivedDataHandler();

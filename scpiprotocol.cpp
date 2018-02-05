@@ -1,6 +1,6 @@
 #include "scpiprotocol.h"
 
-SCPIprotocol::SCPIprotocol(): mMessage(""), mCommandSub1(""),mCommandSub2(""),mCommandSub3(""),mLastSubValue("")
+SCPIprotocol::SCPIprotocol(QObject *parent): mMessage(""), mCommandSub1(""),mCommandSub2(""),mCommandSub3(""),mLastSubValue(""),QObject(parent)
 {
 
 }
@@ -111,7 +111,6 @@ SCPIprotocol &SCPIprotocol::AutoRangeON()
 {
 
     mCommandSub3 = CommandFromFunctionName.value(__func__);
-    mLastSubValue = "ON";
 
     return *this;
 }
@@ -133,3 +132,113 @@ SCPIprotocol &SCPIprotocol::ClearRegisters()
     mCommandSub1 = CommandFromFunctionName.value(__func__);
     return *this;
 }
+
+const QByteArray SCPIprotocol::resetMultimeter()
+{
+    SCPIprotocol tmp;
+
+    return tmp.ClearModel().GenMsg();
+}
+
+const QByteArray SCPIprotocol::setMultimeterVoltageDCMode()
+{
+    SCPIprotocol tmp;
+    return tmp.SetVoltageDCMode().GenMsg();
+}
+
+const QByteArray SCPIprotocol::setMultimeterVoltageACMode()
+{
+    SCPIprotocol tmp;
+    return tmp.SetVoltageACMode().GenMsg();
+}
+
+const QByteArray SCPIprotocol::setMultimeterCurrentACMode()
+{
+    SCPIprotocol tmp;
+    return tmp.SetCurrentACMode().GenMsg();
+}
+
+const QByteArray SCPIprotocol::setMultimeterCurrentDCMode()
+{
+    SCPIprotocol tmp;
+    return tmp.SetCurrentACMode().GenMsg();
+}
+
+
+const QByteArray SCPIprotocol::setMultimeterRange(const quint16 &range,const float &value)
+{
+    SCPIprotocol tmp;
+    switch (range) {
+    case 1:
+        return tmp.VoltageConfig().ACMode().UpperRange(QByteArray::number(value)).GenMsg();
+
+        break;
+    case 2:
+        return tmp.VoltageConfig().DCMode().UpperRange(QByteArray::number(value)).GenMsg();
+    break;
+
+    case 3:
+   return     tmp.CurrentConfig().ACMode().UpperRange(QByteArray::number(value)).GenMsg();
+
+        break;
+    case 4:
+        return tmp.CurrentConfig().DCMode().UpperRange(QByteArray::number(value)).GenMsg();
+    }
+
+    return tmp.GenMsg();
+}
+
+const QByteArray SCPIprotocol::setMultimeterAutoRangeON(const quint16 &range)
+{
+
+    SCPIprotocol tmp;
+    switch (range) {
+    case 1:
+        return tmp.VoltageConfig().ACMode().AutoRangeON().GenMsg();
+
+        break;
+    case 2:
+        return tmp.VoltageConfig().DCMode().AutoRangeON().GenMsg();
+    break;
+
+    case 3:
+   return     tmp.CurrentConfig().ACMode().AutoRangeON().GenMsg();
+
+        break;
+    case 4:
+        return tmp.CurrentConfig().DCMode().AutoRangeON().GenMsg();
+    }
+
+    return tmp.GenMsg();
+}
+
+const QByteArray SCPIprotocol::setMultimeterAutoRangeOFF(const quint16  &range)
+{
+    SCPIprotocol tmp;
+    switch (range) {
+    case 1:
+        return tmp.VoltageConfig().ACMode().AutoRangeOFF().GenMsg();
+
+        break;
+    case 2:
+        return tmp.VoltageConfig().DCMode().AutoRangeOFF().GenMsg();
+    break;
+
+    case 3:
+   return     tmp.CurrentConfig().ACMode().AutoRangeOFF().GenMsg();
+
+        break;
+    case 4:
+        return tmp.CurrentConfig().DCMode().AutoRangeOFF().GenMsg();
+    }
+
+    return tmp.GenMsg();
+}
+
+const QByteArray SCPIprotocol::readMultimeter()
+{
+    SCPIprotocol tmp;
+
+    return tmp.Read().GenMsg();
+}
+
