@@ -101,7 +101,8 @@ double ChartDataSource::getUpperRange(const int &timeDiv)
     int i = m_data.count()-2;
 
     if(timeDiv < i) i = timeDiv;
-   for (i; i >= 0; i--)
+
+    for (i; i >= 0; i--)
    {
        if (upperRange < m_data.value(i))
        {
