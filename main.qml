@@ -120,20 +120,20 @@ ApplicationWindow {
                     id: recordSettingDialog
                     x: (mainWindow.width - width) /2
                     y:(mainWindow.height - height) /2
-                     parent: ApplicationWindow.overlay
-                     modal: true
+                    parent: ApplicationWindow.overlay
+                    modal: true
                     Column
                     {
                         RowLayout
                         {
                             Label
                             {
-                                 Layout.alignment: Qt.AlignCenter
+                                Layout.alignment: Qt.AlignCenter
                                 text:"Current Path: "
                             }
                             TextField
                             {
-                                 Layout.alignment: Qt.AlignCenter
+                                Layout.alignment: Qt.AlignCenter
                                 id: currectRecordPathTextField
 
                                 Layout.preferredWidth: 300
@@ -174,8 +174,9 @@ ApplicationWindow {
             TextField
             {
                 id: maxRangeYTaxField
-                text: "10.0"
+                text: "5.0"
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
+
 
             }
 
@@ -192,6 +193,19 @@ ApplicationWindow {
 
             }
 
+            Button
+            {
+                id: autoScaleButton
+                text: "Auto Scale"
+
+                onClicked:
+                {
+                    axisY2.min = chartDataSource.getLowerRange(getTimeDiv()) *1.3
+                    axisY2.max = chartDataSource.getUpperRange(getTimeDiv())*1.3
+                    maxRangeYTaxField.text = axisY2.max
+                    deltaRangeYTaxField.text = axisY2.max - axisY2.min
+                }
+            }
 
         }
     }
@@ -322,18 +336,6 @@ ApplicationWindow {
 
         }
 
-        // Timer to load graph the first time, only run one time
-        Timer
-        {
-            id:loadGraphFirstTime
-            interval:0
-            repeat: false
-            running:true
-            onTriggered:
-            {
-
-            }
-        }
 
     }
 
@@ -610,7 +612,7 @@ ApplicationWindow {
                         readTimer.stop()
                         if(recordCheckbox.checked)
                         {
-                            chartDataSource.recordToCSV()
+                            chartDataSource.recordToCSV(getMultimeterSetup())
                         }
 
                         chartDataSource.resetDataSource()
@@ -628,6 +630,13 @@ ApplicationWindow {
                 id: recordCheckbox
                 text:"Record"
                 enabled: serialInterfaceAvailable? 1:0
+            }
+            TextField
+            {
+                Layout.alignment: Qt.AlignCenter
+                id: recordNameTextField
+                text:"Record 1"
+                enabled: recordCheckbox.checked? 1:0
             }
         }
     }
@@ -649,6 +658,7 @@ ApplicationWindow {
 
             axisX1.min = axisX1.max - getTimeDiv()
             axisX1.max = chartDataSource.getCurrentDataIndex() + 1
+
 
         }
 
@@ -731,6 +741,65 @@ ApplicationWindow {
         {
             return 10000
         }
+    }
+
+    function getMultimeterSetup()
+    {
+
+        if(autoRangeCheckbox.checked)
+        {
+
+            if(voltageRadioButton.checked)
+            {
+                if(dcRadioButton.checked)
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Voltage:DC:AutoRangeON:SampleRate=" + samplingRateSpinBox.value + "Hz"
+                }
+                else
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Voltage:AC:AutoRangeON:SampleRate=" + samplingRateSpinBox.value + "Hz"
+                }
+            }
+            else
+            {
+                if(dcRadioButton.checked)
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Current:DC:AutoRangeON:SampleRate=" + samplingRateSpinBox.value + "Hz"
+                }
+                else
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Current:AC:AutoRangeON:SampleRate=" + samplingRateSpinBox.value + "Hz"
+                }
+            }
+        }
+        else
+        {
+
+            if(voltageRadioButton.checked)
+            {
+                if(dcRadioButton.checked)
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Voltage:DC:AutoRangeOFF:ManualRange=" + manualRangeSlider.value+":SampleRate: " + samplingRateSpinBox.value + "Hz"
+                }
+                else
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Voltage:AC:AutoRangeOFF:ManualRange=" + manualRangeSlider.value+":SampleRate: " + samplingRateSpinBox.value + "Hz"
+                }
+            }
+            else
+            {
+                if(dcRadioButton.checked)
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Current:DC:AutoRangeOFF:ManualRange=" + manualRangeSlider.value+":SampleRate: " + samplingRateSpinBox.value + "Hz"
+                }
+                else
+                {
+                    return recordNameTextField.text+'\n'+"Setup -> Current:AC:AutoRangeOFF:ManualRange=" + manualRangeSlider.value+":SampleRate: " + samplingRateSpinBox.value + "Hz"
+                }
+
+            }
+        }
+
     }
 
 }

@@ -39,7 +39,7 @@ double ChartDataSource::byteArrayToDouble(const QByteArray &data)
 void ChartDataSource::receivedDataHandler(const QByteArray &data)
 {
 
-    qDebug() << byteArrayToDouble(data);
+
     m_data.insert(CurrentDataIndex, byteArrayToDouble(data));
     CurrentDataIndex++;
 }
@@ -76,17 +76,57 @@ void ChartDataSource::setURLPath(const QString &urlPath)
     m_URL = urlPath;
 }
 
-void ChartDataSource::recordToCSV()
+void ChartDataSource::recordToCSV(const QString &setup)
 {
     QFile data(m_URL);
 
     if(data.open(QFile::ReadWrite | QFile::Append))
     {
         QTextStream out(&data);
-
+        out << setup << '\n';
+        out << "Sample" << "," << "Value" << '\n';
         for (int i = 0; i < m_data.count(); i++)
         {
          out << i << ","  << m_data.value(i) << '\n';
         }
     }
+}
+
+
+double ChartDataSource::getUpperRange(const int &timeDiv)
+{
+    double upperRange;
+
+    upperRange = m_data.value(m_data.count()-1);
+    int i = m_data.count()-2;
+
+    if(timeDiv < i) i = timeDiv;
+   for (i; i >= 0; i--)
+   {
+       if (upperRange < m_data.value(i))
+       {
+           upperRange = m_data.value(i);
+       }
+   }
+
+    return upperRange;
+}
+
+
+double ChartDataSource::getLowerRange(const int &timeDiv)
+{
+    double lowerRange;
+
+    int i = m_data.count()-2;
+
+    if(timeDiv < i) i = timeDiv;
+   for (i; i >= 0; i--)
+   {
+       if (lowerRange > m_data.value(i))
+       {
+           lowerRange = m_data.value(i);
+       }
+   }
+   qDebug() << lowerRange;
+    return lowerRange;
 }

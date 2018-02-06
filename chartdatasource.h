@@ -25,8 +25,10 @@ public slots:
      void resetDataSource();
      double lastValue();
      int getCurrentDataIndex();
-     void recordToCSV();
+     void recordToCSV(const QString &setup);
      void setURLPath(const QString &urlPath);
+     double getUpperRange(const int &timeDiv);
+     double getLowerRange(const int &timeDiv);
 };
 
 #endif // CHARTDATASOURCE_H
